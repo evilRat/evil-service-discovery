@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "express": "^4.17.1",
+    "http-proxy": "^1.18.0",
     "node-zookeeper-client": "^0.2.2"
   },
   "main": "app.js",

@@ -1,5 +1,6 @@
 var express = require('express');
 var zookeeper = require('node-zookeeper-client')
+var httpProxy = require('http-proxy')
 
 var PORT = 1234;
 
@@ -7,10 +8,19 @@ var CONNECTION_STRING = '127.0.0.1:2181'
 
 var REGISTRY_ROOT = '/registry';
 
-var app = express();
-app.use(express.static('public'));
 //连接zk
 var zk = zookeeper.createClient(CONNECTION_STRING);
+zk.connect();
+
+//创建代理服务器对象并监听错误事件
+var proxy = httpProxy.createProxyServer();
+proxy.on('error', function (err, req, res) {
+    res.end();
+});
+
+//启动Web服务器
+var app = express();
+app.use(express.static('public'));
 app.all('*', function (req, res) {
     //处理图标请求
     if (req.path == '/favicon.ico') {
@@ -58,13 +68,16 @@ app.all('*', function (req, res) {
                 res.end();
                 return;
             }
-            console.log('serviceAddress: %s', serviceAddress);
+            console.log('serviceAddress: %s', serviceAddress.toString());
             if (!serviceAddress) {
                 console.log('service address is not exist');
                 res.end();
                 return;
             }
-            //TODO
+            //执行反向代理
+            proxy.web(req, res, {
+                target: 'http://' + serviceAddress
+            });
         });
     });
 });
