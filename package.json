@@ -2,7 +2,8 @@
   "name": "evil-web",
   "version": "1.0.0",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "node-zookeeper-client": "^0.2.2"
   },
   "main": "app.js",
   "devDependencies": {},
