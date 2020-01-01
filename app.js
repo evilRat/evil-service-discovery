@@ -4,9 +4,12 @@ var httpProxy = require('http-proxy')
 
 var PORT = 1234;
 
-var CONNECTION_STRING = '127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183'
+//var CONNECTION_STRING = '127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183'
+var CONNECTION_STRING = '127.0.0.1:2181'
 
 var REGISTRY_ROOT = '/registry';
+
+var serviceAddress;
 
 //连接zk
 var zk = zookeeper.createClient(CONNECTION_STRING);
@@ -40,9 +43,11 @@ app.all('*', function (req, res) {
     }
     //如果缓存里有数据
     if (cache[serviceName]) {
+        serviceAddress = cache[serviceName];
+        console.log("serviceAddress from cache: %s", serviceAddress);
         //执行反向代理
         proxy.web(req, res, {
-            target: 'http://' + cache[serviceName]
+            target: 'http://' + serviceAddress
         });
     } else {
         //获取服务路径
